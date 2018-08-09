@@ -1,9 +1,7 @@
 var socket;
 var player = "ellipse" // Rect / Ellipse
-var playerObjects = []
-var movesLeft = 9;
-var gameEnabled = true;
-var alreadyTaken;
+var movesLeft
+var gameEnabled = false;
 var positionsTaken;
 var winScenarios;
 
@@ -14,7 +12,7 @@ function setup() {
 	background(51)
 	noFill()
 	stroke(255)
-	newGame()
+	newGame(0)
 }
 
 function board() {
@@ -36,23 +34,26 @@ function draw() {
 	board()
 }
 
-function newGame() {
-	background(51)
-	alreadyTaken = []
-	positionsTaken = []
+function newGame(time) {
+	gameEnabled = false;
+	setTimeout(() => {
+		background(51)
+		positionsTaken = []
+	    winScenarios = {
+			x1: [],
+			x2: [],
+			x3: [],
+			y1: [],
+			y2: [],
+			y3: [],
+			d1: [],
+			d2: [],
+		}
 
-    winScenarios = {
-		x1: [],
-		x2: [],
-		x3: [],
-		y1: [],
-		y2: [],
-		y3: [],
-		d1: [],
-		d2: [],
-	}
+		movesLeft = 9;
+		gameEnabled = true;
 
-	gameEnabled = true;
+	}, time)
 }
 
 function mousePressed() {
@@ -86,90 +87,31 @@ function mousePressed() {
 	}
 }
 
-function updateArrays(config) {
-	switch (config.position) {
-		case "A":
-			winScenarios.x1.push(config.player);
-			winScenarios.y1.push(config.player);
-			winScenarios.d1.push(config.player);
-			break;
-		case "B":
-			winScenarios.x2.push(config.player);
-			winScenarios.y1.push(config.player);
-			break;
-		case "C":
-			winScenarios.x3.push(config.player);
-			winScenarios.y1.push(config.player);
-			winScenarios.d2.push(config.player);
-			break;
-		case "D":
-			winScenarios.x1.push(config.player);
-			winScenarios.y2.push(config.player);
-			break;
-		case "E":
-			winScenarios.x2.push(config.player);
-			winScenarios.y2.push(config.player);
-			winScenarios.d1.push(config.player);
-			winScenarios.d2.push(config.player);
-			break;
-		case "F":
-			winScenarios.x3.push(config.player);
-			winScenarios.y2.push(config.player);
-			break;
-		case "G":
-			winScenarios.x1.push(config.player);
-			winScenarios.y3.push(config.player);
-			winScenarios.d2.push(config.player);
-			break;
-		case "H":
-			winScenarios.x2.push(config.player);
-			winScenarios.y3.push(config.player);
-			break;
-		case "I":
-			winScenarios.x3.push(config.player);
-			winScenarios.y3.push(config.player);
-			winScenarios.d1.push(config.player);
-			break;	
-	}
-
-
-}
 
 function drawObject(config) {
 	if(!positionsTaken.includes(config.position)) {
-			updateArrays(config)
 			switch (config.player) {
 				case "ellipse":
+					updateArrays(config)
 					drawCircle(config)
+					positionsTaken.push(config.position)
 					break;
 				case "cross":
+					updateArrays(config)
 					drawCross(config)
+					positionsTaken.push(config.position)
 					break;
 			}
-
-
 	}
 
-	positionsTaken.push(config.position)
-	alreadyTaken.push({
-		position: config.position, 
-		player: config.player
-	})
+	
 	var winner = hasWon()
-	if(winner != undefined || movesLeft <= 0) {
-		if(winner) {
-			textShow = winner;
-		} else {
-			textShow = "Game tied"
-		}
-		fill(0, 0, 255);
-		textSize(62);
-		text(textShow, 0+20, height/2)
-		gameEnabled = false;
-		setTimeout(() => {
-			newGame()
-		}, 3000)		
+	if(winner) {
+		newGame(3000)
+	} else if(movesLeft <= 0) {
+		newGame(3000)		
 	}
+
 }
 
 
@@ -178,24 +120,13 @@ function drawObject(config) {
 
 function hasWon() {
 	for(arr in winScenarios) {
-		let check = winScenarios[arr]
-			
-			var ellipseTimes = check.filter(function(value){
-			    return value === "ellipse"
-			}).length   
+		if(winScenarios[arr].filter((value) => {
+		    return value === "ellipse"
+		}).length >= 3) { return "Ellipse has won"}
 
-			var crossTimes = check.filter(function(value) {
-				return value === "cross"
-			}).length
-
-
-			 if(crossTimes >= 3) {
-				return "Cross has won"
-			} 
-
-			if(ellipseTimes >= 3) {
-				return "Ellipse has won"
-			} 		
+		if(winScenarios[arr].filter((value) => {
+			return value === "cross"
+		}).length >= 3) { return "Cross has won"}
 	}
 }
 
@@ -203,37 +134,14 @@ function hasWon() {
 
 
 function drawCross(config) {
-	
 	line(config.x+50, config.y+50, config.x-50, config.y-50)
 	line(config.x-50, config.y+50, config.x+50, config.y-50)
-	/*
-	playerObjects.push({
-		player: "cross",
-		line1: {x1: config.x+50,y1: config.y+50,x2: config.x-50,y2: config.y-50	},
-		line2: {x1: config.x-50,y1: config.y+50,x2: config.x+50,y2: config.y-50}
-	})
-	*/
-
 	movesLeft--;
 	player = "ellipse"
 }
 
 function drawCircle(config) {
-	
 	ellipse(config.x, config.y, 100, 100)
-
-/*
-	playerObjects.push({
-		player: "ellipse",
-		ellipse: {x: config.x, y: config.y, d: 100}
-	})
-*/
 	movesLeft--;
 	player = "cross"
 }
-
-
-/*
-			line(obj.line2.x1, obj.line2.y1, obj.line2.x2, obj.line2.y2)
-
-*/
