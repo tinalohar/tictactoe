@@ -4,16 +4,50 @@ var movesLeft
 var gameEnabled = false;
 var positionsTaken;
 var winScenarios;
+var showBoard = false;
+
+var objects;
+var room;
+var playerTurn;
+var playerNickname;
+var lines = [];
+var ellipses = [];
+var disableKeys = true;
 
 function setup() {
 	textFont('Helvetica');
 	socket = io("http://localhost:3000")
-	createCanvas(600, 600)
-	background(51)
-	noFill()
-	stroke(255)
-	newGame(0)
 }
+
+function draw() {
+	if(showBoard) {
+		board()
+
+		lines.forEach((i) => {
+			line(i.line1.x1, i.line1.y1, i.line1.x2, i.line1.y2)
+			line(i.line2.x1, i.line2.y1, i.line2.x2, i.line2.y2)
+		})
+
+		ellipses.forEach((i) => {
+			ellipse(i.circle.x1, i.circle.y1, i.circle.d1, i.circle.d2)
+		})
+
+
+			var winner = hasWon()
+			if(winner) {
+				disableKeys = true;
+				newGame(3000)
+				socket.emit(`winner`, {roomname: room.roomname, message: winner})
+				metaInformation.hasWon = winner;
+			} else if(movesLeft <= 0) {
+				disableKeys = true;
+				//socket.emit(`winner`, {roomname: room.roomname, message: "The game is tied"})
+			}
+	}
+}
+
+
+
 
 function board() {
 	const lines = {
@@ -30,13 +64,38 @@ function board() {
 }
 
 
-function draw() {
-	board()
-}
+var listeningForUpdates = false;
 
+function listenForUpdates() {
+	socket.on(`update-${room.roomname}`, (data) => {
+		playerTurn = data.next;
+		disableKeys = false;
+		objects = data.objects;
+		movesLeft = data.movesLeft;
+		lines = objects.lines;
+		ellipses = objects.ellipses;
+	})
+
+	socket.on(`winner-${room.roomname}`, (data) => {
+			disableKeys = true;
+			newGame(3000)
+			metaInformation.hasWon = data.winner;
+	})
+
+	listeningForUpdates = true;
+}
 function newGame(time) {
+	if(!listeningForUpdates) {
+		listenForUpdates()
+	}
+
 	gameEnabled = false;
 	setTimeout(() => {
+		createCanvas(600, 600)
+		background(51)
+		noFill()
+		stroke(255)
+
 		background(51)
 		positionsTaken = []
 	    winScenarios = {
@@ -50,14 +109,25 @@ function newGame(time) {
 			d2: [],
 		}
 
+		objects = {
+			lines: [],
+			ellipses: []
+		}
+		lines = []
+		ellipses = []
+
+
 		movesLeft = 9;
 		gameEnabled = true;
+		disableKeys = false;
 
-	}, time)
+	}, 0)
 }
 
+
+
 function mousePressed() {
-	if(gameEnabled) {
+	if(gameEnabled && playerTurn === playerNickname && !disableKeys) {
 		noFill()
 		const centerItemValue = 100;
 
@@ -66,52 +136,49 @@ function mousePressed() {
 		} else if(mouseY > height || mouseY < 0) {
 			return
 		} else if(mouseX < width/3 && mouseY < height/3)  {
-			drawObject({x: width/3-centerItemValue, y: height/3-centerItemValue, player: player, position: "A"})
+			drawObject({x: width/3-centerItemValue, y: height/3-centerItemValue, player: playerNickname, position: "A"})
 		} else if(mouseX > width/3 && mouseX < width/3*2 && mouseY < height/3) {
-			drawObject({x: width/3*2-centerItemValue, y: height/3-centerItemValue, player: player, position: "B"})
+			drawObject({x: width/3*2-centerItemValue, y: height/3-centerItemValue, player: playerNickname, position: "B"})
 		} else if(mouseX > width/3*2 && mouseY < height/3) {
-			drawObject({x: width-centerItemValue, y: height/3-centerItemValue, player: player, position: "C"})
+			drawObject({x: width-centerItemValue, y: height/3-centerItemValue, player: playerNickname, position: "C"})
 		} else if(mouseX < width/3 && mouseY > height/3 && mouseY < height/3*2) {
-			drawObject({x: width/3-centerItemValue, y: height/3*2-centerItemValue, player: player, position: "D"}) 
+			drawObject({x: width/3-centerItemValue, y: height/3*2-centerItemValue, player: playerNickname, position: "D"}) 
 		} else if(mouseX > width/3 && mouseX < width/3*2 && mouseY < height/3*2 && mouseY > height/3) {
-			drawObject({x: width/3*2-centerItemValue, y: height/3*2-centerItemValue, player: player, position: "E"})
+			drawObject({x: width/3*2-centerItemValue, y: height/3*2-centerItemValue, player: playerNickname, position: "E"})
 		} else if(mouseX > width/3*2 && mouseY < height/3*2 && mouseY > height/3) {
-			drawObject({x: width-centerItemValue, y: height/3*2-centerItemValue, player: player, position: "F"})
+			drawObject({x: width-centerItemValue, y: height/3*2-centerItemValue, player: playerNickname, position: "F"})
 		} else if(mouseX < width/3 && mouseY > height/3*2) {
-			drawObject({x: width/3-centerItemValue, y: height-centerItemValue, player: player, position: "G"}) 
+			drawObject({x: width/3-centerItemValue, y: height-centerItemValue, player: playerNickname, position: "G"}) 
 		} else if(mouseX > width/3 && mouseX < width/3*2 && mouseY > height/3*2) {
-			drawObject({x: width/3*2-centerItemValue, y: height-centerItemValue, player: player, position: "H"}) 
+			drawObject({x: width/3*2-centerItemValue, y: height-centerItemValue, player: playerNickname, position: "H"}) 
 		} else if(mouseX > width/3*2 && mouseY > height/3*2) {
-			drawObject({x: width-centerItemValue, y: height-centerItemValue, player: player, position: "I"})  
+			drawObject({x: width-centerItemValue, y: height-centerItemValue, player: playerNickname, position: "I"})  
 		}
 	}
+
+	//console.log("Player Turn:", playerTurn)
+	//console.log("You are::", playerNickname)
+
 }
 
 
 function drawObject(config) {
+	disableKeys = true;
+
 	if(!positionsTaken.includes(config.position)) {
-			switch (config.player) {
-				case "ellipse":
+			switch (playerNickname) {
+				case room.player1:
 					updateArrays(config)
 					drawCircle(config)
 					positionsTaken.push(config.position)
 					break;
-				case "cross":
+				case room.player2:
 					updateArrays(config)
 					drawCross(config)
 					positionsTaken.push(config.position)
 					break;
 			}
 	}
-
-	
-	var winner = hasWon()
-	if(winner) {
-		newGame(3000)
-	} else if(movesLeft <= 0) {
-		newGame(3000)		
-	}
-
 }
 
 
@@ -121,27 +188,51 @@ function drawObject(config) {
 function hasWon() {
 	for(arr in winScenarios) {
 		if(winScenarios[arr].filter((value) => {
-		    return value === "ellipse"
-		}).length >= 3) { return "Ellipse has won"}
+		    return value === room.player1
+		}).length >= 3) { return "Player 1 has won! ( Ellipse )"}
 
 		if(winScenarios[arr].filter((value) => {
-			return value === "cross"
-		}).length >= 3) { return "Cross has won"}
+			return value === room.player2
+		}).length >= 3) { return "Player 2 has won! ( Cross )"}
 	}
 }
 
 
-
-
 function drawCross(config) {
-	line(config.x+50, config.y+50, config.x-50, config.y-50)
-	line(config.x-50, config.y+50, config.x+50, config.y-50)
+	let cross = {
+		line1: {x1: config.x+50, y1: config.y+50, x2: config.x-50, y2: config.y-50 },
+		line2: {x1: config.x-50, y1: config.y+50, x2: config.x+50, y2: config.y-50 }
+	}
+	lines.push(cross)
+	objects.lines.push(cross)
 	movesLeft--;
-	player = "ellipse"
+	sendUpdate(room.player1, {
+		objects: objects,
+		movesLeft: movesLeft
+	})
+	player = room.player2
 }
 
 function drawCircle(config) {
-	ellipse(config.x, config.y, 100, 100)
+	let circle = {
+		circle: {x1: config.x, y1: config.y, d1: 100, d2: 100}
+	}
+	ellipses.push(circle)
+	objects.ellipses.push(circle)
 	movesLeft--;
-	player = "cross"
+	sendUpdate(room.player2, {
+		objects: objects,
+		movesLeft: movesLeft
+	})
+	player = room.player2
+}
+
+
+function sendUpdate(next, meta) {
+	socket.emit('update', {
+		roomname: room.roomname,
+		next: next,
+		objects: meta.objects,
+		movesLeft: meta.movesLeft
+	})
 }

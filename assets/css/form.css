@@ -1,0 +1,43 @@
+.new-game, .join-game {
+
+}
+
+.new-game h2, .join-game h2 {
+	text-align: center;
+}
+
+.form {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.form .form-group {
+	display: flex;
+	flex-direction: column;
+	padding: 1em;
+	box-sizing: border-box;
+}
+
+label {
+	margin-bottom: 2px;
+	font-weight: bold;
+}
+
+input {
+	padding: 1em;
+	box-sizing: border-box;
+}
+
+.form-group button {
+	padding: 1em;
+	box-sizing: border-box;
+	background: #f45c41;
+	border: none;
+	color: #fff;
+}
+
+.form-group button:hover {
+	background: #f48c42;
+	cursor: pointer;
+}

@@ -11,3 +11,50 @@ html, body {
 	align-items: center;
 	background: lightgray;
 }
+
+.container {
+	width: 50%;
+	
+	display: flex;
+	flex-direction: column;
+	background: white;
+}
+
+.container .header {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	width: 100%;
+}
+.container .header button {
+	width: 100%;
+	padding: 1em;
+	box-sizing: border-box;
+	border: none;
+	background: #4286f4;
+	color: #fff;
+}
+
+.container .header button:first-child {
+	margin-right: 3px;
+}
+
+.container .header button:hover {
+	background: #333;
+	cursor: pointer;
+}
+
+.meta-info-header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	background: #fff;
+	width: 600px;
+	box-sizing: border-box;
+	padding: 1em;
+}
+
+.meta-info-header span {
+	width: 100%;
+	color: #000;
+}
