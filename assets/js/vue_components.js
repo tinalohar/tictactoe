@@ -19,11 +19,6 @@ function serverAccess(config) {
         .then(response => response.json()) // parses response to JSON
         .then(data => {
         	if(data.success) {
-
-        		//console.log(data)
-
-
-        		
     			room = data.room;
     			playerTurn = data.room.player1;
 
@@ -38,7 +33,6 @@ function serverAccess(config) {
        			}
 
 				socket.on(`room-update-${room.roomname}`, (data) => {
-					//console.log("Room Update:", data)
 					room = data;
 					metaInformation.waitingForPlayers = undefined;
 				})
@@ -154,5 +148,3 @@ var metaInformation = new Vue({
 		</div>
 	`
 })
-
-// <span>Currently moving: {{currentlyMoving}}</span>

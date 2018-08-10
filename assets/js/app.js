@@ -16,7 +16,7 @@ var disableKeys = true;
 var listeningForUpdates = false;
 
 
-const serverUrl = "http://localhost:3000"
+const serverUrl = "http://d6a36906.ngrok.io"
 
 function setup() {
 	textFont('Helvetica');
@@ -80,10 +80,10 @@ function listenForUpdates() {
 		movesLeft = data.movesLeft;
 		lines = objects.lines;
 		ellipses = objects.ellipses;
+		positionsTaken = data.positionsTaken;
 	})
 
 	socket.on(`winner-${room.roomname}`, (data) => {
-			console.log(data)
 			disableKeys = true;
 			newGame(3000)
 			metaInformation.hasWon = data.message;
@@ -167,26 +167,23 @@ function mousePressed() {
 		}
 	}
 
-	//console.log("Player Turn:", playerTurn)
-	//console.log("You are::", playerNickname)
-
 }
 
 
 function drawObject(config) {
-	disableKeys = true;
-
 	if(!positionsTaken.includes(config.position)) {
+		disableKeys = true;
+
 			switch (playerNickname) {
 				case room.player1:
-					updateArrays(config)
-					drawCircle(config)
 					positionsTaken.push(config.position)
+					updateArrays(config)
+					drawCircle(config, positionsTaken)
 					break;
 				case room.player2:
-					updateArrays(config)
-					drawCross(config)
 					positionsTaken.push(config.position)
+					updateArrays(config)
+					drawCross(config, positionsTaken)
 					break;
 			}
 	}
@@ -209,7 +206,7 @@ function hasWon() {
 }
 
 
-function drawCross(config) {
+function drawCross(config, positionsTaken) {
 	let cross = {
 		line1: {x1: config.x+50, y1: config.y+50, x2: config.x-50, y2: config.y-50 },
 		line2: {x1: config.x-50, y1: config.y+50, x2: config.x+50, y2: config.y-50 }
@@ -219,12 +216,13 @@ function drawCross(config) {
 	movesLeft--;
 	sendUpdate(room.player1, {
 		objects: objects,
-		movesLeft: movesLeft
+		movesLeft: movesLeft,
+		positionsTaken: positionsTaken
 	})
 	player = room.player2
 }
 
-function drawCircle(config) {
+function drawCircle(config, positionsTaken) {
 	let circle = {
 		circle: {x1: config.x, y1: config.y, d1: 100, d2: 100}
 	}
@@ -233,18 +231,19 @@ function drawCircle(config) {
 	movesLeft--;
 	sendUpdate(room.player2, {
 		objects: objects,
-		movesLeft: movesLeft
+		movesLeft: movesLeft,
+		positionsTaken, positionsTaken
 	})
 	player = room.player2
 }
 
 
 function sendUpdate(next, meta) {
-	console.log(movesLeft)
 	socket.emit('update', {
 		roomname: room.roomname,
 		next: next,
 		objects: meta.objects,
-		movesLeft: meta.movesLeft
+		movesLeft: meta.movesLeft,
+		positionsTaken: meta.positionsTaken
 	})
 }

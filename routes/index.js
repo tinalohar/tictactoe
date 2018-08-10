@@ -12,11 +12,11 @@ module.exports = (io) => {
 
 	io.on('connection', (socket) => {
 		socket.on('update', (data) => {
-			console.log(data)
 			socket.broadcast.emit(`update-${data.roomname}`, {
 				next: data.next,
 				objects: data.objects,
-				movesLeft: data.movesLeft
+				movesLeft: data.movesLeft,
+				positionsTaken: data.positionsTaken
 			})
 		})
 
@@ -60,6 +60,8 @@ module.exports = (io) => {
 			res.json({success: false, message: "Hmm, That room does not exist"})
 		} else if(!req.body.nickname){
 			res.json({success: false, message: "You forgot to pick a username"})
+		} else if(room && room.player2) {
+			res.json({success: false, message: "Room is full"})
 		} else {
 			room.player2 = req.body.nickname;
 			io.emit(`room-update-${req.body.roomname}`, room)
