@@ -15,7 +15,7 @@ function serverAccess(config) {
 	    body: JSON.stringify(config.data)
 	}
 
-	 fetch(config.url, httpConfig)
+	 fetch(`${serverUrl}${config.url}`, httpConfig)
         .then(response => response.json()) // parses response to JSON
         .then(data => {
         	if(data.success) {
@@ -28,24 +28,33 @@ function serverAccess(config) {
     			playerTurn = data.room.player1;
 
     			if(config.url === "/new-game") {
-    				playerNickname = data.room.player1;
+					playerNickname = data.room.player1;
+					metaInformation.player = `${playerNickname} ( Circle )`;
+					metaInformation.waitingForPlayers = "Waiting for Cross..."
     			} else {
-    				playerNickname = data.room.player2;
+					playerNickname = data.room.player2;
+					metaInformation.player = `${playerNickname} ( Cross )`;
+					metaInformation.waitingForPlayers = undefined;
        			}
 
 				socket.on(`room-update-${room.roomname}`, (data) => {
 					//console.log("Room Update:", data)
 					room = data;
+					metaInformation.waitingForPlayers = undefined;
 				})
 
-				metaInformation.player = playerNickname;
 				metaInformation.currentlyMoving = room.player1;
         		showBoard = true;
-        		newGame(0)
         		welcomeScreen.gameActive = true;
-        		metaInformation.gameActive = true;
+				metaInformation.gameActive = true;
+				newGame(0)
         		
-        	}
+        	} else {
+				welcomeScreen.errorMessage = data.message;
+				setTimeout(() => {
+					welcomeScreen.errorMessage = undefined;
+				}, 5000)
+			}
 	  })
 }
 
@@ -59,7 +68,8 @@ var welcomeScreen = new Vue({
 		newGameNickname: "",
 		newGameRoomname: "",
 		joinGameNickname: "",
-		joinGameRoomname: ""
+		joinGameRoomname: "",
+		errorMessage: undefined
 	},
 	methods: {
 		startGame: function(nickname, roomname) {
@@ -81,7 +91,7 @@ var welcomeScreen = new Vue({
 
 			<div class="new-game" v-if="state === 'new-game' ">
 				<h2>New Game</h2>
-
+				<span v-if="errorMessage" id="errorMessageInfo">{{errorMessage}}</span>
 				<div class="form">
 					<div class="form-group">
 						<label>Nickname</label>
@@ -102,6 +112,7 @@ var welcomeScreen = new Vue({
 			
 			<div class="join-game" v-if="state === 'join-game' ">
 				<h2>Join Game</h2>
+				<span v-if="errorMessage" id="errorMessageInfo">{{errorMessage}}</span>
 
 				<div class="form">
 
@@ -132,12 +143,14 @@ var metaInformation = new Vue({
 	data: {
 		player: "",
 		hasWon: undefined,
-		gameActive: false
+		gameActive: false,
+		waitingForPlayers: undefined
 	},
 	template: `
 		<div class="meta-info-header" v-if="gameActive">
 			<span>You are: {{player}}</span>
-			<span v-if="hasWon">{{hasWon}}</span>
+			<span id="winText" v-if="hasWon">{{hasWon}}</span>
+			<span v-if="waitingForPlayers">{{waitingForPlayers}}</span>
 		</div>
 	`
 })

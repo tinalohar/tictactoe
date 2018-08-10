@@ -1,6 +1,6 @@
 var socket;
 var player = "ellipse" // Rect / Ellipse
-var movesLeft
+var movesLeft;	
 var gameEnabled = false;
 var positionsTaken;
 var winScenarios;
@@ -13,10 +13,14 @@ var playerNickname;
 var lines = [];
 var ellipses = [];
 var disableKeys = true;
+var listeningForUpdates = false;
+
+
+const serverUrl = "http://localhost:3000"
 
 function setup() {
 	textFont('Helvetica');
-	socket = io("http://localhost:3000")
+	socket = io(serverUrl)
 }
 
 function draw() {
@@ -35,13 +39,17 @@ function draw() {
 
 			var winner = hasWon()
 			if(winner) {
+				metaInformation.hasWon = winner;
 				disableKeys = true;
 				newGame(3000)
 				socket.emit(`winner`, {roomname: room.roomname, message: winner})
-				metaInformation.hasWon = winner;
-			} else if(movesLeft <= 0) {
+			}
+
+			if(movesLeft === 0) {
+				metaInformation.hasWon = "Game Tied"
 				disableKeys = true;
-				//socket.emit(`winner`, {roomname: room.roomname, message: "The game is tied"})
+				newGame(3000)
+				socket.emit(`winner`, {roomname: room.roomname, message: "Game Tied"})
 			}
 	}
 }
@@ -64,8 +72,6 @@ function board() {
 }
 
 
-var listeningForUpdates = false;
-
 function listenForUpdates() {
 	socket.on(`update-${room.roomname}`, (data) => {
 		playerTurn = data.next;
@@ -77,9 +83,10 @@ function listenForUpdates() {
 	})
 
 	socket.on(`winner-${room.roomname}`, (data) => {
+			console.log(data)
 			disableKeys = true;
 			newGame(3000)
-			metaInformation.hasWon = data.winner;
+			metaInformation.hasWon = data.message;
 	})
 
 	listeningForUpdates = true;
@@ -120,6 +127,10 @@ function newGame(time) {
 		movesLeft = 9;
 		gameEnabled = true;
 		disableKeys = false;
+		
+		setTimeout(() => {
+			metaInformation.hasWon = undefined;
+		}, 3000);
 
 	}, 0)
 }
@@ -127,7 +138,7 @@ function newGame(time) {
 
 
 function mousePressed() {
-	if(gameEnabled && playerTurn === playerNickname && !disableKeys) {
+	if(gameEnabled && playerTurn === playerNickname && !disableKeys && room.player1 && room.player2) {
 		noFill()
 		const centerItemValue = 100;
 
@@ -189,11 +200,11 @@ function hasWon() {
 	for(arr in winScenarios) {
 		if(winScenarios[arr].filter((value) => {
 		    return value === room.player1
-		}).length >= 3) { return "Player 1 has won! ( Ellipse )"}
+		}).length >= 3) { return "Circle Has Won!"}
 
 		if(winScenarios[arr].filter((value) => {
 			return value === room.player2
-		}).length >= 3) { return "Player 2 has won! ( Cross )"}
+		}).length >= 3) { return "Cross Has Won!"}
 	}
 }
 
@@ -229,6 +240,7 @@ function drawCircle(config) {
 
 
 function sendUpdate(next, meta) {
+	console.log(movesLeft)
 	socket.emit('update', {
 		roomname: room.roomname,
 		next: next,

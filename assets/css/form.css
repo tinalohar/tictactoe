@@ -4,6 +4,7 @@
 
 .new-game h2, .join-game h2 {
 	text-align: center;
+	margin-bottom: 0;
 }
 
 .form {
@@ -40,4 +41,11 @@ input {
 .form-group button:hover {
 	background: #f48c42;
 	cursor: pointer;
+}
+
+#errorMessageInfo {
+	text-align: center;
+	color: crimson;
+	width: 100%;
+	display: block;
 }

@@ -58,3 +58,16 @@ html, body {
 	width: 100%;
 	color: #000;
 }
+
+#winText {
+	animation: winText 1s ease-in;
+	font-size: 16px;
+	color: blue;
+	font-weight: bolder;
+}
+
+
+@keyframes winText {
+	from{color: red; font-size: 12px;}
+	to{color: blue; font-size: 16px;}
+}
