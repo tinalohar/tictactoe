@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
 #winner {
 	display: none;
 }
@@ -5,43 +7,74 @@
 html, body {
 	width: 100%;
 	height: 100%;
+	margin: 0;
+	padding: 0;
+	/*
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+	*/
 	background: lightgray;
+	font-family: 'Open Sans', sans-serif;
+	background: url("../images/tic_tac_toe_hearts_cells_112371_1920x1080.jpg") no-repeat center center fixed; 
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
 }
 
 .container {
-	width: 50%;
-	
+	width: 100%;
+	height: 100%;
 	display: flex;
 	flex-direction: column;
-	background: white;
+	justify-content: center;
+	align-items: center;
 }
 
-.container .header {
+.inner-container {
+	width: 50%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-content: center;
+	background: rgba(255, 255, 255, 0.8);
+}
+.inner-container .header {
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
+	text-align: center;
 	width: 100%;
 }
-.container .header button {
+.inner-container .header button {
 	width: 100%;
-	padding: 1em;
+	padding: 2em;
 	box-sizing: border-box;
 	border: none;
-	background: #4286f4;
 	color: #fff;
-}
-
-.container .header button:first-child {
-	margin-right: 3px;
-}
-
-.container .header button:hover {
-	background: #333;
 	cursor: pointer;
+}
+
+
+
+.inner-container .header button:first-child {
+	margin-right: 1.5px;
+	background: #f44242;
+}
+
+.inner-container .header button:last-child {
+	margin-left: 1.5px;
+	background: #329604;
+}
+
+.inner-container .header button:first-child:hover {
+	background: #d53737;
+}
+
+.inner-container .header button:last-child:hover {
+	background: #266e04;
 }
 
 .meta-info-header {
@@ -49,14 +82,18 @@ html, body {
 	flex-direction: row;
 	justify-content: space-between;
 	background: #fff;
-	width: 600px;
+	width: 100%;
 	box-sizing: border-box;
 	padding: 1em;
+	position: fixed;
+	top: 0;
+	box-shadow: 0 4px 2px -2px gray;
 }
 
 .meta-info-header span {
 	width: 100%;
 	color: #000;
+	text-align: center;
 }
 
 #winText {
@@ -66,8 +103,39 @@ html, body {
 	font-weight: bolder;
 }
 
+canvas {
+	margin-top: 5em;
+}
+
+
+.join-game, .new-game {
+	animation: onLoad 1s ease-in;
+}
+
+@keyframes onLoad {
+	from{opacity: 0}
+	to{opacity: 1}
+}
 
 @keyframes winText {
 	from{color: red; font-size: 12px;}
 	to{color: blue; font-size: 16px;}
+}
+
+@media(max-width: 780px) {
+	canvas {
+		margin-top: 0;
+	}
+
+
+	.container, .inner-container {
+		height: 100%;
+		width: 100%;
+		justify-content: flex-start;
+	}
+
+	input {
+		border: 0.1px solid black;
+	}
+	
 }

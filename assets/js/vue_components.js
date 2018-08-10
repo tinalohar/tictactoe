@@ -67,9 +67,13 @@ var welcomeScreen = new Vue({
 	},
 	methods: {
 		startGame: function(nickname, roomname) {
+			this.newGameNickname = "";
+			this.newGameRoomname = "";
 			serverAccess({url: "/new-game", data: {nickname: nickname, roomname: roomname}})
 		},
 		joinGame: function(nickname, roomname) {
+			this.joinGameNickname = "";
+			this.joinGameRoomname = "";
 			serverAccess({url: "/join-game", data: {nickname: nickname, roomname: roomname}})
 		},
 		setState: function(state) {
@@ -77,14 +81,15 @@ var welcomeScreen = new Vue({
 		}
 	},
 	template: `
-		<div class="container" v-if="!gameActive">
+		<div class="inner-container" v-if="!gameActive">
+
 			<div class="header">
 				<button @click="setState('new-game')">New Game</button>
 				<button @click="setState('join-game')">Join Game</button>
 			</div>
 
 			<div class="new-game" v-if="state === 'new-game' ">
-				<h2>New Game</h2>
+				<h2>Start New Game</h2>
 				<span v-if="errorMessage" id="errorMessageInfo">{{errorMessage}}</span>
 				<div class="form">
 					<div class="form-group">
@@ -105,7 +110,7 @@ var welcomeScreen = new Vue({
 			</div>
 			
 			<div class="join-game" v-if="state === 'join-game' ">
-				<h2>Join Game</h2>
+				<h2>Join An Existing Game</h2>
 				<span v-if="errorMessage" id="errorMessageInfo">{{errorMessage}}</span>
 
 				<div class="form">
@@ -140,11 +145,24 @@ var metaInformation = new Vue({
 		gameActive: false,
 		waitingForPlayers: undefined
 	},
+	methods: {
+		leaveGame: function() {
+			welcomeScreen.gameActive = false;
+			this.gameActive = false;
+			gameEnabled = false;
+			disableKeys = true;
+			room = undefined;
+			noCanvas()
+		}
+	},
 	template: `
 		<div class="meta-info-header" v-if="gameActive">
 			<span>You are: {{player}}</span>
 			<span id="winText" v-if="hasWon">{{hasWon}}</span>
 			<span v-if="waitingForPlayers">{{waitingForPlayers}}</span>
+			<span>
+				<a @click="leaveGame()">Leave Game</a>
+			</span>
 		</div>
 	`
 })

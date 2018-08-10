@@ -16,7 +16,7 @@ var disableKeys = true;
 var listeningForUpdates = false;
 
 
-const serverUrl = "http://d6a36906.ngrok.io"
+const serverUrl = "http://localhost:3000"
 
 function setup() {
 	textFont('Helvetica');
@@ -98,7 +98,8 @@ function newGame(time) {
 
 	gameEnabled = false;
 	setTimeout(() => {
-		createCanvas(600, 600)
+		var canvas = createCanvas(600, 600)
+		canvas.parent('sketch-holder');
 		background(51)
 		noFill()
 		stroke(255)
