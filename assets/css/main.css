@@ -17,7 +17,7 @@ html, body {
 	*/
 	background: lightgray;
 	font-family: 'Open Sans', sans-serif;
-	background: url("../images/tic_tac_toe_hearts_cells_112371_1920x1080.jpg") no-repeat center center fixed; 
+	background: url("../images/board-bright-design-235994.jpg") no-repeat center center fixed; 
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;
@@ -110,6 +110,16 @@ canvas {
 
 .join-game, .new-game {
 	animation: onLoad 1s ease-in;
+}
+
+a {
+	text-decoration: none;
+	color: black;
+}
+
+#leaveGameTag:hover {
+	color: lightsalmon;
+	cursor: pointer;
 }
 
 @keyframes onLoad {

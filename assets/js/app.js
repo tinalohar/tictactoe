@@ -98,8 +98,12 @@ function newGame(time) {
 
 	gameEnabled = false;
 	setTimeout(() => {
+		var sketch_holder = document.getElementById("sketch-holder")
+		sketch_holder.style.display = "block";
+
 		var canvas = createCanvas(600, 600)
 		canvas.parent('sketch-holder');
+
 		background(51)
 		noFill()
 		stroke(255)
@@ -107,24 +111,13 @@ function newGame(time) {
 		background(51)
 		positionsTaken = []
 	    winScenarios = {
-			x1: [],
-			x2: [],
-			x3: [],
-			y1: [],
-			y2: [],
-			y3: [],
-			d1: [],
-			d2: [],
+			x1: [],x2: [],x3: [],
+			y1: [],y2: [],y3: [],
+			d1: [],d2: [],
 		}
-
-		objects = {
-			lines: [],
-			ellipses: []
-		}
+		objects = {lines: [],ellipses: []}
 		lines = []
 		ellipses = []
-
-
 		movesLeft = 9;
 		gameEnabled = true;
 		disableKeys = false;

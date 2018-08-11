@@ -24,11 +24,18 @@ function serverAccess(config) {
 
     			if(config.url === "/new-game") {
 					playerNickname = data.room.player1;
-					metaInformation.player = `${playerNickname} ( Circle )`;
-					metaInformation.waitingForPlayers = "Waiting for Cross..."
+					metaInformation.player = {
+						name: playerNickname,
+						player: "circle"
+					}
+
+					metaInformation.waitingForPlayers = `waiting for: `
     			} else {
 					playerNickname = data.room.player2;
-					metaInformation.player = `${playerNickname} ( Cross )`;
+					metaInformation.player = {
+						name: playerNickname,
+						player: "cross"
+					}
 					metaInformation.waitingForPlayers = undefined;
        			}
 
@@ -94,12 +101,12 @@ var welcomeScreen = new Vue({
 				<div class="form">
 					<div class="form-group">
 						<label>Nickname</label>
-						<input type="text" placeholder="Your nickname" v-model="newGameNickname" />
+						<input type="text" placeholder="Your nickname" v-model="newGameNickname" v-on:keyup.13="startGame(newGameNickname, newGameRoomname)" />
 					</div>
 
 					<div class="form-group">
 						<label>Room Name</label>
-						<input type="text" placeholder="Name of room" v-model="newGameRoomname" />
+						<input type="text" placeholder="Name of room" v-model="newGameRoomname" v-on:keyup.13="startGame(newGameNickname, newGameRoomname)" />
 					</div>
 
 					<div class="form-group">
@@ -117,12 +124,12 @@ var welcomeScreen = new Vue({
 
 					<div class="form-group">
 						<label>Nickname</label>
-						<input type="text" placeholder="Your nickname" v-model="joinGameNickname" />
+						<input type="text" placeholder="Your nickname" v-model="joinGameNickname" v-on:keyup.13="joinGame(joinGameNickname, joinGameRoomname)"/>
 					</div>
 
 					<div class="form-group">
 						<label>Room Name</label>
-						<input type="text" placeholder="Name of room" v-model="joinGameRoomname" />
+						<input type="text" placeholder="Name of room" v-model="joinGameRoomname" v-on:keyup.13="joinGame(joinGameNickname, joinGameRoomname)"/>
 					</div>
 
 					<div class="form-group">
@@ -140,28 +147,26 @@ var welcomeScreen = new Vue({
 var metaInformation = new Vue({
 	el: "#metaInfo",
 	data: {
-		player: "",
+		player: {
+			name: "",
+			player: ""
+		},
 		hasWon: undefined,
 		gameActive: false,
 		waitingForPlayers: undefined
 	},
 	methods: {
-		leaveGame: function() {
-			welcomeScreen.gameActive = false;
-			this.gameActive = false;
-			gameEnabled = false;
-			disableKeys = true;
-			room = undefined;
-			noCanvas()
-		}
+		leaveGame: function() {},
 	},
 	template: `
 		<div class="meta-info-header" v-if="gameActive">
-			<span>You are: {{player}}</span>
+			<span v-if="player.player === 'circle'">you are: <i class="fa fa-circle-thin" aria-hidden="true"></i></span>
+			<span v-if="player.player === 'cross'">you are: <i class="fa fa-times" aria-hidden="true"></i></span>
+
 			<span id="winText" v-if="hasWon">{{hasWon}}</span>
-			<span v-if="waitingForPlayers">{{waitingForPlayers}}</span>
+			<span v-if="waitingForPlayers">{{waitingForPlayers}} <i class="fa fa-times" aria-hidden="true"></i></span>
 			<span>
-				<a @click="leaveGame()">Leave Game</a>
+				<a id="leaveGameTag" href="/">Leave Game <i class="fa fa-sign-out" aria-hidden="true"></i></a>
 			</span>
 		</div>
 	`
