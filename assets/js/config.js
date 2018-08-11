@@ -38,11 +38,7 @@ function serverAccess(config) {
 			   room = data.room;
 			   if(config.newgame) {
 				   updateMetaInformation({nickname: data.room.player1, player: "circle", waitingForPlayers: true})
-
-				   socket.on(`room-update-${room.roomname}`, (data) => {
-					   room = data;
-					   metaInformation.waitingForPlayers = false
-				   })
+				   network.onRoomUpdate(room.roomname)
 
 			   } else {
 				   updateMetaInformation({nickname: data.room.player2, player: "cross", waitingForPlayers: false})

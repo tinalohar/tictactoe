@@ -1,4 +1,4 @@
-var socket;
+var network;
 
 var room;
 var playerNickname;
@@ -8,7 +8,7 @@ var game;
 
 function setup() {
 	textFont('Helvetica');
-	socket = io(serverUrl)
+	network = new Network(serverUrl)
 }
 
 function draw() {
@@ -24,37 +24,25 @@ function draw() {
 				metaInformation.hasWon = "Game Tied"
 				game.disableKeys = true;
 				newGame()
-				socket.emit(`winner`, {roomname: room.roomname, message: "Game Tied"})
+				network.winnerUpdate({roomname: room.roomname, message: winner})
 			}
 
 			if(winner) {
 				metaInformation.hasWon = winner;
 				game.disableKeys = true;
 				newGame()
-				socket.emit(`winner`, {roomname: room.roomname, message: winner})
+				network.winnerUpdate({roomname: room.roomname, message: winner})
 			}
 
 	}
 }
 
 
-function listenForUpdates() {
-	socket.on(`update-${room.roomname}`, (data) => {
-		game.updateGame(data) // Update game
-	})
-
-	socket.on(`winner-${room.roomname}`, (data) => {
-			game.disableKeys = true;
-			metaInformation.hasWon = data.message;
-
-			newGame() // Start a new game
-	})
-
-	listeningForUpdates = true;
-}
 function newGame() {
-	if(!listeningForUpdates) {
-		listenForUpdates()
+	if(!network.isListening) {
+		network.onGameUpdate(room.roomname)
+		network.onGameWinner(room.roomname)
+		network.isListening = true;
 	}
 
 	game.gameEnabled = false;
@@ -170,7 +158,7 @@ function hasWon() {
 
 
 function sendUpdate(next) {
-	socket.emit('update', {
+	network.gameUpdate({
 		roomname: room.roomname,
 		next: next,
 		objects: game.objects,

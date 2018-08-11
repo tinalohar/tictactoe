@@ -117,7 +117,43 @@ class Arrays {
             case "I": return this.finalize([a.x3, a.y3, a.d1]);       // D = DIAGONAL
             default:  return this.finalize([]);
         }
+    }   
+}
+
+class Network {
+    constructor(serverUrl) {
+        this.serverUrl = serverUrl;
+        this.socket = io(this.serverUrl)
+        this.isListening = false;
+    } 
+
+
+    onGameUpdate(roomname) {
+        this.socket.on(`update-${roomname}`, (data) => {
+            game.updateGame(data) // Update game
+        })
     }
-    
-    
+
+    onGameWinner(roomname) {
+        this.socket.on(`winner-${roomname}`, (data) => {
+			game.disableKeys = true;
+			metaInformation.hasWon = data.message;
+			newGame() // Start a new game
+        })
+    }
+
+    onRoomUpdate(roomname) {
+        this.socket.on(`room-update-${roomname}`, (data) => {
+            room = data;
+            metaInformation.waitingForPlayers = false
+        })
+    }
+
+    gameUpdate(data) {
+        this.socket.emit('update', data)
+    }
+
+    winnerUpdate(data) {
+        this.socket.emit(`winner`, data)
+    }
 }
