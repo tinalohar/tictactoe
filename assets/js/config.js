@@ -1,4 +1,6 @@
 function updateArrays(config) {
+	let winScenarios = game.winScenarios;
+
 	switch (config.position) {
 		case "A":
 			winScenarios.x1.push(config.player);

@@ -1,142 +1,99 @@
 var socket;
 var player = "ellipse" // Rect / Ellipse
-var movesLeft;	
-var gameEnabled = false;
-var positionsTaken;
-var winScenarios;
-var showBoard = false;
 
-var objects;
 var room;
-var playerTurn;
 var playerNickname;
-var lines = [];
-var ellipses = [];
-var disableKeys = true;
 var listeningForUpdates = false;
 
+var game;
+var board;
 
 const serverUrl = "http://localhost:3000"
 
 function setup() {
 	textFont('Helvetica');
 	socket = io(serverUrl)
+	board = new Board();
+	
 }
 
 function draw() {
-	if(showBoard) {
-		board()
 
-		lines.forEach((i) => {
-			line(i.line1.x1, i.line1.y1, i.line1.x2, i.line1.y2)
-			line(i.line2.x1, i.line2.y1, i.line2.x2, i.line2.y2)
-		})
-
-		ellipses.forEach((i) => {
-			ellipse(i.circle.x1, i.circle.y1, i.circle.d1, i.circle.d2)
-		})
-
-
+	if(game && game.showBoard) {
+		board.drawBoard()
 			var winner = hasWon()
+
+			if(game.objects) {
+				game.drawObjects()
+			}
+		
+			if(game.movesLeft === 0 && !winner) {
+				metaInformation.hasWon = "Game Tied"
+				game.disableKeys = true;
+				newGame()
+				socket.emit(`winner`, {roomname: room.roomname, message: "Game Tied"})
+			}
+
 			if(winner) {
 				metaInformation.hasWon = winner;
-				disableKeys = true;
-				newGame(3000)
+				game.disableKeys = true;
+				newGame()
 				socket.emit(`winner`, {roomname: room.roomname, message: winner})
 			}
 
-			if(movesLeft === 0) {
-				metaInformation.hasWon = "Game Tied"
-				disableKeys = true;
-				newGame(3000)
-				socket.emit(`winner`, {roomname: room.roomname, message: "Game Tied"})
-			}
-	}
-}
-
-
-
-
-function board() {
-	const lines = {
-		y1: {xStart: width/3, yStart: 0, xEnd: width/3, yEnd: height},
-		y2: {xStart: width/3*2, yStart: 0, xEnd: width/3*2, yEnd: height},
-		x1: {xStart: 0, yStart: height/3, xEnd: width, yEnd: height/3},
-		x2: {xStart: 0, yStart: height/3*2, xEnd: width, yEnd: height/3*2}
-	}
-
-	for(let key in lines) {
-		var object = lines[key]
-		line(object.xStart, object.yStart, object.xEnd, object.yEnd)
 	}
 }
 
 
 function listenForUpdates() {
 	socket.on(`update-${room.roomname}`, (data) => {
-		playerTurn = data.next;
-		disableKeys = false;
-		objects = data.objects;
-		movesLeft = data.movesLeft;
-		lines = objects.lines;
-		ellipses = objects.ellipses;
-		positionsTaken = data.positionsTaken;
+		game.updateGame(data) // Update game
 	})
 
 	socket.on(`winner-${room.roomname}`, (data) => {
-			disableKeys = true;
-			newGame(3000)
+			game.disableKeys = true;
 			metaInformation.hasWon = data.message;
+
+			newGame() // Start a new game
 	})
 
 	listeningForUpdates = true;
 }
-function newGame(time) {
+function newGame() {
 	if(!listeningForUpdates) {
 		listenForUpdates()
 	}
 
-	gameEnabled = false;
+	game.gameEnabled = false;
+	var sketch_holder = document.getElementById("sketch-holder")
+	sketch_holder.style.display = "block";
+	var canvas = createCanvas(600, 600)
+	canvas.parent('sketch-holder');
+
+	background(51)
+	noFill()
+	stroke(255)
+
+	background(51)
+	
+	game = new Game(true, room.player1)
+	game.gameEnabled = true;
+
 	setTimeout(() => {
-		var sketch_holder = document.getElementById("sketch-holder")
-		sketch_holder.style.display = "block";
+		metaInformation.hasWon = undefined;
+	}, 3000);
 
-		var canvas = createCanvas(600, 600)
-		canvas.parent('sketch-holder');
 
-		background(51)
-		noFill()
-		stroke(255)
-
-		background(51)
-		positionsTaken = []
-	    winScenarios = {
-			x1: [],x2: [],x3: [],
-			y1: [],y2: [],y3: [],
-			d1: [],d2: [],
-		}
-		objects = {lines: [],ellipses: []}
-		lines = []
-		ellipses = []
-		movesLeft = 9;
-		gameEnabled = true;
-		disableKeys = false;
-		
-		setTimeout(() => {
-			metaInformation.hasWon = undefined;
-		}, 3000);
-
-	}, 0)
 }
 
 
 
 function mousePressed() {
-	if(gameEnabled && playerTurn === playerNickname && !disableKeys && room.player1 && room.player2) {
+	if(game && game.gameEnabled && game.playerTurn === playerNickname && !game.disableKeys && room.player1 && room.player2) {
 		noFill()
-		const centerItemValue = 100;
+		const centerItemValue = 100; // Position the objects in the center of the square
 
-		if(mouseX > width || mouseX < 0) {
+		if(mouseX > width || mouseX < 0) { // make sure that the mouse is on the board
 			return
 		} else if(mouseY > height || mouseY < 0) {
 			return
@@ -160,24 +117,23 @@ function mousePressed() {
 			drawObject({x: width-centerItemValue, y: height-centerItemValue, player: playerNickname, position: "I"})  
 		}
 	}
-
 }
 
 
 function drawObject(config) {
-	if(!positionsTaken.includes(config.position)) {
-		disableKeys = true;
+	if(!game.positionsTaken.includes(config.position)) {
+		game.disableKeys = true;
 
 			switch (playerNickname) {
 				case room.player1:
-					positionsTaken.push(config.position)
+					game.positionsTaken.push(config.position)
 					updateArrays(config)
-					drawCircle(config, positionsTaken)
+					drawCircle(config)
 					break;
 				case room.player2:
-					positionsTaken.push(config.position)
+					game.positionsTaken.push(config.position)
 					updateArrays(config)
-					drawCross(config, positionsTaken)
+					drawCross(config)
 					break;
 			}
 	}
@@ -188,56 +144,46 @@ function drawObject(config) {
 
 
 function hasWon() {
-	for(arr in winScenarios) {
-		if(winScenarios[arr].filter((value) => {
+	for(arr in game.winScenarios) {
+		if(game.winScenarios[arr].filter((value) => {
 		    return value === room.player1
 		}).length >= 3) { return "Circle Has Won!"}
 
-		if(winScenarios[arr].filter((value) => {
+		if(game.winScenarios[arr].filter((value) => {
 			return value === room.player2
 		}).length >= 3) { return "Cross Has Won!"}
 	}
 }
 
 
-function drawCross(config, positionsTaken) {
+function drawCross(config) {
 	let cross = {
 		line1: {x1: config.x+50, y1: config.y+50, x2: config.x-50, y2: config.y-50 },
 		line2: {x1: config.x-50, y1: config.y+50, x2: config.x+50, y2: config.y-50 }
 	}
-	lines.push(cross)
-	objects.lines.push(cross)
-	movesLeft--;
-	sendUpdate(room.player1, {
-		objects: objects,
-		movesLeft: movesLeft,
-		positionsTaken: positionsTaken
-	})
+	game.objects.lines.push(cross)
+	game.movesLeft--;
+	sendUpdate(room.player1)
 	player = room.player2
 }
 
-function drawCircle(config, positionsTaken) {
+function drawCircle(config) {
 	let circle = {
 		circle: {x1: config.x, y1: config.y, d1: 100, d2: 100}
 	}
-	ellipses.push(circle)
-	objects.ellipses.push(circle)
-	movesLeft--;
-	sendUpdate(room.player2, {
-		objects: objects,
-		movesLeft: movesLeft,
-		positionsTaken, positionsTaken
-	})
+	game.objects.ellipses.push(circle)
+	game.movesLeft--;
+	sendUpdate(room.player2)
 	player = room.player2
 }
 
 
-function sendUpdate(next, meta) {
+function sendUpdate(next) {
 	socket.emit('update', {
 		roomname: room.roomname,
 		next: next,
-		objects: meta.objects,
-		movesLeft: meta.movesLeft,
-		positionsTaken: meta.positionsTaken
+		objects: game.objects,
+		movesLeft: game.movesLeft,
+		positionsTaken: game.positionsTaken
 	})
 }

@@ -20,7 +20,6 @@ function serverAccess(config) {
         .then(data => {
         	if(data.success) {
     			room = data.room;
-    			playerTurn = data.room.player1;
 
     			if(config.url === "/new-game") {
 					playerNickname = data.room.player1;
@@ -45,10 +44,10 @@ function serverAccess(config) {
 				})
 
 				metaInformation.currentlyMoving = room.player1;
-        		showBoard = true;
+				game = new Game(true, data.room.player1)
         		welcomeScreen.gameActive = true;
 				metaInformation.gameActive = true;
-				newGame(0)
+				newGame()
         		
         	} else {
 				welcomeScreen.errorMessage = data.message;
