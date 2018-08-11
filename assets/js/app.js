@@ -1,5 +1,4 @@
 var socket;
-var player = "ellipse" // Rect / Ellipse
 
 var room;
 var playerNickname;
@@ -7,8 +6,6 @@ var listeningForUpdates = false;
 
 var game;
 var board;
-
-const serverUrl = "http://localhost:3000"
 
 function setup() {
 	textFont('Helvetica');

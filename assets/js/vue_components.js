@@ -1,65 +1,3 @@
-
-
-function serverAccess(config) {
-	var httpConfig = {
-	    method: "POST", // *GET, POST, PUT, DELETE, etc.
-	    mode: "cors", // no-cors, cors, *same-origin
-        headers: {
-        		'Accept': 'application/json',
-      			'Content-Type': 'application/json'
-		},
-	    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-	    credentials: "same-origin", // include, same-origin, *omit
-	    redirect: "follow", // manual, *follow, error
-	    referrer: "no-referrer", // no-referrer, *client
-	    body: JSON.stringify(config.data)
-	}
-
-	 fetch(`${serverUrl}${config.url}`, httpConfig)
-        .then(response => response.json()) // parses response to JSON
-        .then(data => {
-        	if(data.success) {
-    			room = data.room;
-
-    			if(config.url === "/new-game") {
-					playerNickname = data.room.player1;
-					metaInformation.player = {
-						name: playerNickname,
-						player: "circle"
-					}
-
-					metaInformation.waitingForPlayers = `waiting for: `
-    			} else {
-					playerNickname = data.room.player2;
-					metaInformation.player = {
-						name: playerNickname,
-						player: "cross"
-					}
-					metaInformation.waitingForPlayers = undefined;
-       			}
-
-				socket.on(`room-update-${room.roomname}`, (data) => {
-					room = data;
-					metaInformation.waitingForPlayers = undefined;
-				})
-
-				metaInformation.currentlyMoving = room.player1;
-				game = new Game(true, data.room.player1)
-        		welcomeScreen.gameActive = true;
-				metaInformation.gameActive = true;
-				newGame()
-        		
-        	} else {
-				welcomeScreen.errorMessage = data.message;
-				setTimeout(() => {
-					welcomeScreen.errorMessage = undefined;
-				}, 5000)
-			}
-	  })
-}
-
-
-
 var welcomeScreen = new Vue({
 	el: "#welcomeScreen",
 	data: {
@@ -75,12 +13,12 @@ var welcomeScreen = new Vue({
 		startGame: function(nickname, roomname) {
 			this.newGameNickname = "";
 			this.newGameRoomname = "";
-			serverAccess({url: "/new-game", data: {nickname: nickname, roomname: roomname}})
+			serverAccess({url: "/new-game", newgame: true, data: {nickname: nickname, roomname: roomname}})
 		},
 		joinGame: function(nickname, roomname) {
 			this.joinGameNickname = "";
 			this.joinGameRoomname = "";
-			serverAccess({url: "/join-game", data: {nickname: nickname, roomname: roomname}})
+			serverAccess({url: "/join-game", newgame: false, data: {nickname: nickname, roomname: roomname}})
 		},
 		setState: function(state) {
 			this.state = state;
@@ -152,7 +90,7 @@ var metaInformation = new Vue({
 		},
 		hasWon: undefined,
 		gameActive: false,
-		waitingForPlayers: undefined
+		waitingForPlayers: true
 	},
 	methods: {
 		leaveGame: function() {},
@@ -163,7 +101,7 @@ var metaInformation = new Vue({
 			<span v-if="player.player === 'cross'">you are: <i class="fa fa-times" aria-hidden="true"></i></span>
 
 			<span id="winText" v-if="hasWon">{{hasWon}}</span>
-			<span v-if="waitingForPlayers">{{waitingForPlayers}} <i class="fa fa-times" aria-hidden="true"></i></span>
+			<span v-if="waitingForPlayers">waiting for: <i class="fa fa-times" aria-hidden="true"></i></span>
 			<span>
 				<a id="leaveGameTag" href="/">Leave Game <i class="fa fa-sign-out" aria-hidden="true"></i></a>
 			</span>
