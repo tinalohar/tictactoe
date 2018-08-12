@@ -1,31 +1,7 @@
-import { 
-    Storage, 
-    Room, 
-    Game, 
-    Board,
-    Arrays, 
-	Network,
-	gameConfig,
-	instance_p5
-} from "./classes";
-
-import { 
-    updateMetaInformation, 
-    serverAccess 
-} from "./config"; 
-
-import {
-	newGame,
-	createObject,
-	sendUpdate
-} from "./main";
-
-
+import { serverAccess } from "./config"; 
 import welcomeTemplate  from "./templates/welcomeScreen.template";
 import metaTemplate  from "./templates/metaInformation.template"
 
-//metainfo-template
-//welcomescreen-template
 
 export var welcomeScreen = new Vue({ // components.js
 		el: "#welcomeScreen",

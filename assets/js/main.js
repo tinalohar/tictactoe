@@ -1,28 +1,5 @@
-import {
-	welcomeScreen,
-	metaInformation
-} from "./components";
-
-import { 
-    Storage, 
-    Room, 
-    Game, 
-    Board,
-    Arrays, 
-	Network,
-	gameConfig,
-	instance_p5,
-	Circle,
-	Cross
-} from "./classes";
-
-import { 
-    updateMetaInformation, 
-    serverAccess 
-} from "./config"; 
-
-
-
+import { metaInformation } from "./components";
+import { Game, gameConfig, instance_p5, Circle, Cross } from "./classes";
 
 export function newGame() {
 	if(!gameConfig.network.isListening) {

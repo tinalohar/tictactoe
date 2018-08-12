@@ -3,7 +3,7 @@ const directory = './assets/js';
 
 module.exports = {
   mode: "development",
-  entry: path.join(__dirname, '/assets/js/init.js'),
+  entry: path.join(__dirname, '/assets/js/classes.js'),
   output: {
     filename: 'bundle.js',
     path: __dirname + "/assets/js/dist"

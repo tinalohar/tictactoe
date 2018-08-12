@@ -11,7 +11,7 @@ html, body {
 	padding: 0;
 	background: lightgray;
 	font-family: 'Open Sans', sans-serif;
-	background: url("../images/background.jpg") no-repeat center center fixed; 
+	background: url("../images/background.jpeg") no-repeat center center fixed; 
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;
@@ -51,15 +51,11 @@ html, body {
 	cursor: pointer;
 }
 
-
-
 .inner-container .header button:first-child {
-	margin-right: 1.5px;
 	background: #f44242;
 }
 
 .inner-container .header button:last-child {
-	margin-left: 1.5px;
 	background: #329604;
 }
 
@@ -70,6 +66,7 @@ html, body {
 .inner-container .header button:last-child:hover {
 	background: #266e04;
 }
+
 
 .meta-info-header {
 	display: flex;
@@ -97,6 +94,7 @@ html, body {
 	font-weight: bolder;
 }
 
+
 canvas {
 	margin-top: 5em;
 }
@@ -116,6 +114,59 @@ a {
 	cursor: pointer;
 }
 
+
+.inner-container .header button {
+	border: none;
+	cursor: pointer;
+	color: white;
+	border-radius: 2px;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, .4);
+	background: #2196F3;
+  }
+  
+  /* Ripple magic */
+  .inner-container .header button{
+	position: relative;
+	overflow: hidden;
+  }
+  
+  .inner-container .header button:after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 5px;
+	height: 5px;
+	background: rgba(255, 255, 255, .5);
+	opacity: 0;
+	border-radius: 100%;
+	transform: scale(1, 1) translate(-50%);
+	transform-origin: 50% 50%;
+  }
+  
+  @keyframes ripple {
+	0% {
+	  transform: scale(0, 0);
+	  opacity: 1;
+	}
+	20% {
+	  transform: scale(25, 25);
+	  opacity: 1;
+	}
+	100% {
+	  opacity: 0;
+	  transform: scale(40, 40);
+	}
+  }
+  
+  button:focus:not(:active)::after {
+	animation: ripple 1s ease-out;
+  }
+
+  button:focus {
+	outline: none;
+  }
+  
 @keyframes onLoad {
 	from{opacity: 0}
 	to{opacity: 1}

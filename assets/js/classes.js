@@ -1,22 +1,8 @@
-import {
-	welcomeScreen,
-	metaInformation
-} from "./components";
-
-import { 
-    updateMetaInformation, 
-    serverAccess 
-} from "./config"; 
-
-import {
-	newGame,
-	createObject,
-	sendUpdate
-} from "./main";
+import { metaInformation } from "./components";
+import { newGame, createObject } from "./main";
+import { serverUrl } from "./http.config";
 
 export var gameConfig = {}
-
-import { serverUrl } from "./http.config";
 
 var s = function( sketch ) {
     sketch.setup = function() {
@@ -133,14 +119,23 @@ export class Game {
     }
 
     drawObjects() {
+        instance_p5.strokeWeight(4)
+
         this.objects.lines.forEach((i) => { // the cross player object
+
+            instance_p5.stroke(instance_p5.color(47, 92, 206))
             instance_p5.line(i.line1.x1, i.line1.y1, i.line1.x2, i.line1.y2)
             instance_p5.line(i.line2.x1, i.line2.y1, i.line2.x2, i.line2.y2)
         })
 
         this.objects.ellipses.forEach((i) => { // the circle player object
-            instance_p5.ellipse(i.circle.x1, i.circle.y1, i.circle.d1, i.circle.d2)
+
+            instance_p5.stroke(instance_p5.color((1, 160, 30)))
+            instance_p5.ellipse(i.circle.x1, i.circle.y1, i.circle.d1, i.circle.d2)            
         })
+
+        instance_p5.stroke(instance_p5.color(255, 255, 255))
+        instance_p5.strokeWeight(1)
     }
 
     updateGame(update) {

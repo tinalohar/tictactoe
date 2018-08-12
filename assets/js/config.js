@@ -1,25 +1,6 @@
-import {
-	welcomeScreen,
-	metaInformation
-} from "./components";
-
-import { 
-    Storage, 
-    Room, 
-    Game, 
-    Board,
-    Arrays, 
-	Network,
-	gameConfig,
-	instance_p5
-} from "./classes";
-
-import {
-	newGame,
-	createObject,
-	sendUpdate
-} from "./main";
-
+import { welcomeScreen, metaInformation } from "./components";
+import { Room, Game, gameConfig } from "./classes";
+import { newGame } from "./main";
 import { httpConfig, serverUrl } from "./http.config";
 
 
@@ -56,8 +37,6 @@ export function serverAccess(config) {
 			   }
 				  
 			   gameConfig.game = new Game(true, data.room.player1)
-
-			   console.log("Room:", gameConfig.room)
 			   newGame()
 		   }
 	 })
