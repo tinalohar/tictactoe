@@ -128,7 +128,8 @@ a {
 
 @media(max-width: 780px) {
 	canvas {
-		margin-top: 0;
+		width: 300px !important;
+		height: 300px !important;
 	}
 
 

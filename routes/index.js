@@ -38,11 +38,7 @@ module.exports = (io) => {
 			var room = {
 				roomname: req.body.roomname,
 				player1: req.body.nickname,
-				player2: "",
-				objects: {
-					lines: [],
-					ellipses: []
-				}
+				player2: ""
 			}
 			games.push(room)
 			activeGamesNames.push(req.body.roomname)
