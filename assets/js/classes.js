@@ -12,6 +12,7 @@ var s = function( sketch ) {
   
     sketch.draw = function() {
     	if(gameConfig.game && gameConfig.game.showBoard) {
+            sketch.background(51)
             gameConfig.game.board.draw()
             gameConfig.game.drawObjects()
             gameConfig.game.gameOver()
@@ -79,16 +80,40 @@ export class Storage {     // classes.js
 }
 
 export class Cross {
-	constructor(pattern) {
-		this.line1 = pattern.line1;
-		this.line2 = pattern.line2;
-	} 
+	constructor(line1, line2) {
+		this.line1 = line1;
+        this.line2 = line2;
+        this.color = instance_p5.color('#2f5cce');
+    } 
+
+    update() {
+        instance_p5.stroke(this.color) // Color of the cross
+    }
+
+    draw() {
+        this.update()
+        instance_p5.line(this.line1.x1, this.line1.y1, this.line1.x2, this.line1.y2)
+        instance_p5.line(this.line2.x1, this.line2.y1, this.line2.x2, this.line2.y2)
+    }
 }
 
 export class Circle {
-	constructor(pattern) {
-		this.circle = pattern.circle;
-	}
+	constructor(pattern, theme) {   
+        this.circle = pattern;
+        this.strokeColor = '#fc0505';
+        this.fillColor = (252, 5, 5); // Starts at 255;
+        this.lifespan = theme.lifespan; // Starts at 1;
+    }
+
+    update() {
+        instance_p5.stroke(instance_p5.color(this.strokeColor)) // Color of the circle
+    }
+
+    draw() {
+        this.update()
+        instance_p5.ellipse(this.circle.x1, this.circle.y1, this.circle.d1, this.circle.d2)   
+    }
+
 }
 
 export class Room {
@@ -119,31 +144,40 @@ export class Game {
     }
 
     drawObjects() {
-        instance_p5.strokeWeight(4)
+        instance_p5.strokeWeight(1.5) // Stroke weight of game symbols
+        
 
         this.objects.lines.forEach((i) => { // the cross player object
-
-            instance_p5.stroke(instance_p5.color(47, 92, 206))
-            instance_p5.line(i.line1.x1, i.line1.y1, i.line1.x2, i.line1.y2)
-            instance_p5.line(i.line2.x1, i.line2.y1, i.line2.x2, i.line2.y2)
+            i.draw()
         })
 
         this.objects.ellipses.forEach((i) => { // the circle player object
-
-            instance_p5.stroke(instance_p5.color((1, 160, 30)))
-            instance_p5.ellipse(i.circle.x1, i.circle.y1, i.circle.d1, i.circle.d2)            
+            i.draw()         
         })
 
-        instance_p5.stroke(instance_p5.color(255, 255, 255))
-        instance_p5.strokeWeight(1)
+        instance_p5.stroke(instance_p5.color('#fff')) // Reset to original color
+        instance_p5.strokeWeight(1) // Reset to original stroke weight
     }
 
     updateGame(update) {
-		this.playerTurn	    = update.next; // change the player who is allowed to move
-		this.objects        = update.objects; // display the new move
-		this.movesLeft      = update.movesLeft; // reduce the moves left until win or tie
-        this.positionsTaken = update.positionsTaken; // update the moves that have been taken
-        this.disableKeys    = false; // enable keys again
+        this.objects.lines = update.objects.lines.map((i) => {
+            return new Cross(
+                {x1: i.line1.x1, y1: i.line1.y1, x2: i.line1.x2, y2: i.line1.y2},
+                {x1: i.line2.x1, y1: i.line2.y1, x2: i.line2.x2, y2: i.line2.y2}
+            )
+        })
+
+        this.objects.ellipses = update.objects.ellipses.map((i) => {
+            return new Circle(
+                {x1: i.circle.x1, y1: i.circle.y1, d1: i.circle.d1, d2: i.circle.d2},
+                {fillColor: i.fillColor, lifespan: i.lifespan}
+            )
+        })
+
+        this.playerTurn	= update.next; // change the player who is allowed to move
+		this.movesLeft        = update.movesLeft; // reduce the moves left until win or tie
+        this.positionsTaken   = update.positionsTaken; // update the moves that have been taken
+        this.disableKeys      = false; // enable keys again
     }
 
     hasWon() {

@@ -1,6 +1,7 @@
 import { metaInformation } from "./components";
 import { Game, gameConfig, instance_p5, Circle, Cross } from "./classes";
 
+
 export function newGame() {
 	if(!gameConfig.network.isListening) {
 		gameConfig.network.onGameUpdate(gameConfig.room.roomname)
@@ -37,12 +38,10 @@ export function createObject(config) {
 				case gameConfig.room.player1:
 					gameConfig.game.positionsTaken.push(config.position)
 					gameConfig.game.arrays.update(config)
-
-					let circle = new Circle({
-						circle: {x1: config.x, y1: config.y, d1: 100, d2: 100}
-					})
-				
-					gameConfig.game.objects.ellipses.push(circle)
+					gameConfig.game.objects.ellipses.push(new Circle(
+						{x1: config.x, y1: config.y, d1: 100, d2: 100},
+						{fillColor: 255, lifespan: 1}
+					))
 					gameConfig.game.movesLeft--;
 					sendUpdate(gameConfig.room.player2)
 					gameConfig.player = gameConfig.room.player2
@@ -52,13 +51,10 @@ export function createObject(config) {
 				case gameConfig.room.player2:
 					gameConfig.game.positionsTaken.push(config.position)
 					gameConfig.game.arrays.update(config)
-					
-					let cross = new Cross({
-						line1: {x1: config.x+50, y1: config.y+50, x2: config.x-50, y2: config.y-50 },
-						line2: {x1: config.x-50, y1: config.y+50, x2: config.x+50, y2: config.y-50 }
-					})
-				
-					gameConfig.game.objects.lines.push(cross)
+					gameConfig.game.objects.lines.push(new Cross(
+						{x1: config.x+50, y1: config.y+50, x2: config.x-50, y2: config.y-50 },
+						{x1: config.x-50, y1: config.y+50, x2: config.x+50, y2: config.y-50 }
+					))
 					gameConfig.game.movesLeft--;
 					sendUpdate(gameConfig.room.player1)
 					gameConfig.player = gameConfig.room.player2

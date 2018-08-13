@@ -37,8 +37,14 @@ export function serverAccess(config) {
 			   }
 				  
 			   gameConfig.game = new Game(true, data.room.player1)
+			   removeBackground()
 			   newGame()
 		   }
 	 })
 }
 
+
+function removeBackground() {
+	var target = document.getElementsByTagName("body");
+	target[0].style.background = "none";
+}
