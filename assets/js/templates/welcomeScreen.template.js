@@ -3,11 +3,13 @@ module.exports = () => {
     <div class="inner-container" v-if="!gameActive">
 
     <div class="header">
-        <button @click="setState('new-game')">New Game</button>
-        <button @click="setState('join-game')">Join Game</button>
+        <span @click="setState(false)" v-bind:class="{ active: !isActive }">New Game</span>
+        <span @click="setState(true)" v-bind:class="{ active: isActive }">Join Game</span>
     </div>
-
-    <div class="new-game" v-if="state === 'new-game' ">
+<!--
+    v-bind:class="{ container-active: containerActive }"
+-->
+    <div class="form-container" v-bind:class="{ containerActive: !isActive, containerDisabled: isActive }">
         <h2>Start New Game</h2>
         <span v-if="errorMessage" id="errorMessageInfo">{{errorMessage}}</span>
         <div class="form">
@@ -28,7 +30,7 @@ module.exports = () => {
 
     </div>
     
-    <div class="join-game" v-if="state === 'join-game' ">
+    <div class="form-container" v-bind:class="{ containerActive: isActive, containerDisabled: !isActive }">
         <h2>Join An Existing Game</h2>
         <span v-if="errorMessage" id="errorMessageInfo">{{errorMessage}}</span>
 

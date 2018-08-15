@@ -12,7 +12,9 @@ export var welcomeScreen = new Vue({ // components.js
 			newGameRoomname: "",
 			joinGameNickname: "",
 			joinGameRoomname: "",
-			errorMessage: undefined
+			errorMessage: undefined,
+			isActive: false,
+			containerActive: true
 		},
 		methods: {
 			startGame: function(nickname, roomname) {
@@ -26,7 +28,7 @@ export var welcomeScreen = new Vue({ // components.js
 				serverAccess({url: "/join-game", newgame: false, data: {nickname: nickname, roomname: roomname}})
 			},
 			setState: function(state) {
-				this.state = state;
+				this.isActive = state;
 			}
 		},
 		template: welcomeTemplate()
