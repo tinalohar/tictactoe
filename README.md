@@ -1,7 +1,5 @@
 # TicTacToe Multiplayer Game
 
-![alt text](https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Tic_tac_toe.svg/2000px-Tic_tac_toe.svg.png)
-
 ## Install server dependencies
 ```
 git clone https://github.com/DustiasTheGuy/tictactoe.git
