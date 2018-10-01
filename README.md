@@ -4,7 +4,6 @@
 
 ## Install server dependencies
 ```
-
 git clone https://github.com/DustiasTheGuy/tictactoe.git
 cd tictactoe
 npm install
