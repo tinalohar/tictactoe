@@ -1,5 +1,8 @@
 # TicTacToe Multiplayer Game
 
+
+![alt text](https://static.thenounproject.com/png/25029-200.png)
+
 ## Install server dependencies
 ```
 git clone https://github.com/DustiasTheGuy/tictactoe.git
